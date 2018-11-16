@@ -62,37 +62,40 @@ search_key_word=input("plz input the search keyword")
 url_former = "https://www.pixiv.net/search.php"
 pagenumber = int(input("plz input first pagenumber"))
 last_page = int(input("plz input last pagenumber"))
-save_path = 'D:\\test_'+search_key_word+str(pagenumber)+'-'+str(last_page)+'1.txt'
+save_path = 'D:\\test_'+search_key_word+str(pagenumber)+'-'+str(last_page)+'.txt'
 f_obj = open(save_path, 'w', encoding="utf-8")
 picture_star=[]
 picture = []
+
 while pagenumber<=last_page:
-    next_page_end = "?word=" + search_key_word + "&order=date_d&p=" + str(pagenumber)
-    nextpage = url_former + next_page_end
+    next_page_end = "?word="+search_key_word+"&order=date_d&p="+str(pagenumber)
+    nextpage = url_former+next_page_end
     print("now it's scanning page " + str(pagenumber))
     page_content = opener.open(nextpage).read().decode("utf-8")
-    pic_pattern = re.compile('/bookmark_detail.php\?illust_id=\d+?".+?</a>')  # 寻找全部图片
-    star_pic_pattern = re.compile('/bookmark_detail.php\?illust_id=(\d+?)".+?</a>')  # 寻找有star的图片
-    star_pattern = re.compile('_bookmark-icon-inline"></i>(.+?)</a>')  # 寻找star数目
+    print(page_content)
+    f_obj.write(page_content)
+    print("now it's scanning page " + str(pagenumber))
+    #读取所有的图片地址到一个集合，然后读取所有的star数目到一个集合
+    pic_pattern = re.compile('/bookmark_detail.php\?illust_id=\d+?".+?</a>')#寻找全部图片
+    star_pic_pattern = re.compile('/bookmark_detail.php\?illust_id=(\d+?)".+?</a>')#寻找有star的图片
+    star_pattern = re.compile('_bookmark-icon-inline"></i>(.+?)</a>')#寻找star数目
     print("now it's scanning page " + str(pagenumber))
     for y in star_pattern.findall(page_content):
         picture_star.append(int(y))
-    print("now it's scanning page " + str(pagenumber))
+    print("now it's scanning page "+str(pagenumber))
     picturenumber = 0
-
     for x in pic_pattern.findall(page_content):
-        l = star_pattern.findall(x)
         print(x)
+        l = star_pattern.findall(x)
         print(l)
-        # if l is not empty, there's star here, so judge whether more than 200
+        #如果l非空，意味着有star，进行判断
         if l:
-            if int(l[0]) > 200:
+            if int(l[0])>200:
                 k = star_pic_pattern.findall(x)
                 print(k[0])
-                f_obj.write("www.pixiv.net" + k[0] + " " + l[0] + "\n")
-
+                f_obj.write("www.pixiv.net"+k[0]+" "+l[0]+"\n")
     picture_star.clear()
     picture.clear()
-    pagenumber = pagenumber + 1
+    pagenumber = pagenumber+1
 
 f_obj.close()
